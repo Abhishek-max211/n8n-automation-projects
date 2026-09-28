@@ -1,0 +1,203 @@
+{
+  "name": "Form Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Skills Checking Form",
+        "formDescription": "though this form we will get information about the skills.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is Your Name?",
+              "placeholder": "Enter Your Name."
+            },
+            {
+              "fieldLabel": "Select Your Skills.",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Python"
+                  },
+                  {
+                    "option": "C Language"
+                  },
+                  {
+                    "option": "Java"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "What is your Email.",
+              "placeholder": "Enter Your Email"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -272,
+        -80
+      ],
+      "id": "de269d28-7f4b-4215-813c-f52c614cb7c9",
+      "name": "On form submission",
+      "webhookId": "d1d0fa83-dc7b-4992-b044-48893eb65491"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1hcxVM7tF_IuXoXK_fQw_HjxnjT2hogLvGp9jnm5KCxk",
+          "mode": "list",
+          "cachedResultName": "skills",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hcxVM7tF_IuXoXK_fQw_HjxnjT2hogLvGp9jnm5KCxk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hcxVM7tF_IuXoXK_fQw_HjxnjT2hogLvGp9jnm5KCxk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json['What is Your Name?'] }}",
+            "Skills": "={{ $json['Select Your Skills.'][0] }}",
+            "Email": "={{ $json['What is your Email.'] }}",
+            "Time": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -16,
+        -80
+      ],
+      "id": "b187d63a-5f19-4e23-b94a-0c51a446d416",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DZ4WDzx79Rh2qgnn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhishek.pundir29nov@gmail.com",
+        "subject": "Form Submission Details",
+        "message": "=The Skills Checking Form is submitted by {{ $json.Name }} with skills {{ $json.Skills }} and email {{ $json.Email }} at {{ $json.Time }}\n\nThank You!",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -80
+      ],
+      "id": "f37846d4-fce1-4b10-99c2-ad2a57f311af",
+      "name": "Send a message",
+      "webhookId": "50278662-0a3f-45e8-a147-5a66f12dfe10",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Dr3lQW5J2ooPDPrJ",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d344df66-5ead-4e04-ba23-d2067668626e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1767898dffcabadc1f820953239b600fd1e09321cdcf405d9564e8045b593e8a"
+  },
+  "nodeGroups": [],
+  "id": "73381ZkhEKXkRMCJ",
+  "tags": []
+}
