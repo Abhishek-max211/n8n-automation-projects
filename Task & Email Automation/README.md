@@ -135,8 +135,6 @@ the images are committed.
 
 ## 🖼️ Screenshots
 
-After adding the uploaded screenshots to `screenshots/`, you can use:
-
 
 ![Workflow](workflow.png)
 ![Chat result](chat.png)
