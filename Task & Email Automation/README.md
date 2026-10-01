@@ -137,12 +137,12 @@ the images are committed.
 
 After adding the uploaded screenshots to `screenshots/`, you can use:
 
-``` md
+
 ![Workflow](workflow.png)
 ![Chat result](chat.png)
 ![Email result](email.png)
 ![Google Tasks](tasks.png)
-```
+
 
 ## 🌱 What I Learned
 
