@@ -1,0 +1,349 @@
+{
+  "name": "Gmail Reply Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "readStatus": "unread"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -704,
+        -128
+      ],
+      "id": "03f28410-8afb-4494-acd0-e39df5403f48",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.threadId }}",
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -480,
+        -128
+      ],
+      "id": "25a370c6-c5c6-4863-8cd7-3ce67cf14364",
+      "name": "Get a message",
+      "webhookId": "30e60a7f-c285-4583-b1e8-8650873e7a38",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=I want you to draft an email reply in a very professional way, some things to know i am right now not open for promostions or collaborations but i am open for meeting and project discussion as well.\nalways send reply to Sender email.\n\nI want you to reply this email :  \n\nSubject: {{ $json.subject }}\nBody: {{ $json.text }}\n\nI want you to draft the reply and give me only the body I dont't want you to give me any subject line or anything just give me the body text.\n\nMy Name is Abhishek Pundir.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -240,
+        -128
+      ],
+      "id": "d957a4b4-91bf-4efc-ae16-c180d02f07b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "google/gemini-3.8-flash",
+          "mode": "list",
+          "cachedResultName": "google/gemini-3.8-flash"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        80
+      ],
+      "id": "56358773-a372-4bd8-8bb3-852dca883f40",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PuQETohVVU74GRDc",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16hyIrO3QAqiigHhYXKXehA4Ch70WLQAbdlNfLI3mAQs",
+          "mode": "list",
+          "cachedResultName": "Email Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16hyIrO3QAqiigHhYXKXehA4Ch70WLQAbdlNfLI3mAQs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16hyIrO3QAqiigHhYXKXehA4Ch70WLQAbdlNfLI3mAQs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sender Name ": "={{ $('Get a message').item.json.from.value[0].name }}",
+            "From Email": "={{ $('Get a message').item.json.from.value[0].address }}",
+            "Email Body": "={{ $('Get a message').item.json.text }}",
+            "Body Draft Reply": "={{ $json.output }}",
+            "Thread ID": "={{ $('Get a message').item.json.threadId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sender Name ",
+              "displayName": "Sender Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "From Email",
+              "displayName": "From Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email Body",
+              "displayName": "Email Body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Body Draft Reply",
+              "displayName": "Body Draft Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Thread ID",
+              "displayName": "Thread ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "add241e8-828a-40fd-a554-70ddbfc433d6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HytL9vE02o1XTilD",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Get a message').item.json.threadId }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        -128
+      ],
+      "id": "64c1880c-cbcd-43eb-86dc-b34d7eeea620",
+      "name": "Mark a message as read",
+      "webhookId": "e6b095d0-a303-471b-bd7b-cac937b9eb10",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.from.value[0].address }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        64
+      ],
+      "id": "2f7662d4-b131-4850-bb45-1eb13bc41a85",
+      "name": "Send a message in Gmail",
+      "webhookId": "61e8dd5f-309f-4a11-81e1-55e02bbe81bd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "b53b5cd2-fe7e-4256-85e1-fe6f63feabb0",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1c464f60-1d1d-49eb-9659-77569996485d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1767898dffcabadc1f820953239b600fd1e09321cdcf405d9564e8045b593e8a"
+  },
+  "nodeGroups": [],
+  "id": "wbw5LP3EmnxiMLjx",
+  "tags": []
+}
