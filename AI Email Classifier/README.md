@@ -40,7 +40,7 @@ No manual rules. No keyword filters. Just an LLM that understands context.
 
 <div align="center">
 
-![Result](result.png)
+![Result](email.png)
 
 *A classified email alert delivered to Gmail*
 
