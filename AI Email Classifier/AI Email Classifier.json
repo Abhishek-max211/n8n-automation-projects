@@ -1,0 +1,444 @@
+{
+  "name": "AI Email Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -928,
+        -32
+      ],
+      "id": "c734ce79-051a-4112-83de-d6f5c1286cee",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an email classification assistant.\n\nClassify the incoming email into exactly ONE of these categories:\n\nJOB\nIMPORTANT\nPROMOTION\nSPAM\nOTHER\n\nRules:\n\nJOB = internships, jobs, recruiters, interviews, career opportunities\nIMPORTANT = emails that require attention or action\nPROMOTION = offers, discounts, marketing and advertisements\nSPAM = suspicious or unwanted emails\nOTHER = anything that doesn't fit the above categories\n\nReturn ONLY the category name.\n\nEmail:\nSubject: {{ $json.Subject }}\n\nBody:\n{{ $json.snippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -704,
+        -32
+      ],
+      "id": "9e5063b0-0356-42d3-a042-1e655cc185d6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "google/gemini-3.8-flash",
+          "mode": "list",
+          "cachedResultName": "google/gemini-3.8-flash"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -832,
+        224
+      ],
+      "id": "f24f6569-0997-45bb-b199-3b86b6a515e7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PuQETohVVU74GRDc",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -656,
+        224
+      ],
+      "id": "d526db20-a103-4d08-a4bf-8673edca2aed",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "JOB",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "86ea2d12-509c-49bc-86e7-8a3972a418fd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "JOB"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0385d45d-f22c-4f59-94d1-a4f669cb2ff5",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "IMPORTANT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "IMPORTANT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "45b05523-cf37-43f9-90c3-3b91007e6617",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "PROMOTION",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PROMOTION"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "00527955-4aec-45c7-8a19-d12da619ded8",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "SPAM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SPAM"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "34289914-82f1-4ed9-b745-a352f668bfe3",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "OTHER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "OTHER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        -64
+      ],
+      "id": "18ac0a35-f680-407b-a54b-6af05dd559d2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "abhi.pundir2911@gmail.com",
+        "subject": "🚨 Job Opportunity Detected",
+        "emailType": "text",
+        "message": "=🚨 Job Opportunity Detected  An email related to a job or internship opportunity has been received.  Subject:{{ $('Gmail Trigger').item.json.Subject }} Email Preview: {{ $('Gmail Trigger').item.json.snippet }}  Please check your Gmail inbox for the complete email.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        -240
+      ],
+      "id": "1c63dc0e-73b2-41cc-a478-95bbdfa2193d",
+      "name": "Send a message",
+      "webhookId": "41b796b5-5ba3-4aa9-b603-2ecc779a7d6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhi.pundir2911@gmail.com",
+        "subject": "⚠️ Important Email Received",
+        "emailType": "text",
+        "message": "=⚠️ Important Email Alert  An important email has been received and may require your attention.  Subject: {{ $('Gmail Trigger').item.json.Subject }} Email Preview: {{ $('Gmail Trigger').item.json.snippet }}  Please check your Gmail inbox and take the necessary action.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        -160
+      ],
+      "id": "1b5cda7e-84e3-43a8-8dea-3674464a42bf",
+      "name": "Send a message1",
+      "webhookId": "79397251-dacf-47a8-9dbb-618aede488f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhi.pundir2911@gmail.com",
+        "subject": "📢 Promotional Email Received",
+        "emailType": "text",
+        "message": "=📢 Promotional Email Alert  A promotional or marketing email has been received.  Subject: {{ $('Gmail Trigger').item.json.Subject }}Email Preview: {{ $('Gmail Trigger').item.json.snippet }}  This email has been classified as a promotion by the AI Email Classifier.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -16
+      ],
+      "id": "3d374bf9-cfa6-45a3-9328-f558e06d2e91",
+      "name": "Send a message2",
+      "webhookId": "818e31c3-09a4-46d7-860f-08aebebfc0ab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhi.pundir2911@gmail.com",
+        "subject": "🚨 Spam Email Detected",
+        "emailType": "text",
+        "message": "=🚨 Spam Email Alert  An email has been classified as spam by the AI Email Classifier.  Subject: {{ $('Gmail Trigger').item.json.Subject }}  Email Preview: {{ $('Gmail Trigger').item.json.snippet }}  Please review the email carefully and avoid clicking any suspicious links or attachments.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        128
+      ],
+      "id": "a74c187a-a147-48a2-b027-f1569a971a4a",
+      "name": "Send a message3",
+      "webhookId": "ff07fdb9-5414-4b88-b3e4-8ee35913a32f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhi.pundir2911@gmail.com",
+        "subject": "📩 Other Email Received",
+        "emailType": "text",
+        "message": "=📩 Other Email Notification  An email has been received that doesn't match the main categories.  Subject: {{ $('Gmail Trigger').item.json.Subject }}  Email Preview: {{ $('Gmail Trigger').item.json.snippet }}  Category: OTHER  Please check your Gmail inbox for the complete email.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "5ec5a7ef-6fd6-43d9-a46b-a6780dffa1f8",
+      "name": "Send a message4",
+      "webhookId": "f7b70b92-1bec-4b3a-8637-bebf56575d75",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KjXFdtjlc99iBceW",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7560e0a3-86ec-427c-9561-792e077ccbcd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1767898dffcabadc1f820953239b600fd1e09321cdcf405d9564e8045b593e8a"
+  },
+  "nodeGroups": [],
+  "id": "Gkw1ZUXwgVoKQW8n",
+  "tags": []
+}
